@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# OS
+.DS_Store
+
+# Env
+.env
+.env.local
+
+# Model artifacts are small (<200KB) and checked in so the demo works
+# without retraining -- see backend/scripts/generate_default_results.py
+*.log
