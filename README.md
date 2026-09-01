@@ -1,4 +1,4 @@
-# RL Crypto Trading Bot Backtester
+# Crypto RL Backtester
 
 A full-stack app for training and backtesting reinforcement-learning trading
 agents on real historical BTC-USD data. Two agents — a **tabular Q-learning**

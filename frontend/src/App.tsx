@@ -143,7 +143,7 @@ function App() {
               <TrendingUp size={16} color="#fff" />
             </span>
             <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
-              RL Crypto Trading Bot Backtester
+              Crypto RL Backtester
             </h1>
           </div>
           <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>

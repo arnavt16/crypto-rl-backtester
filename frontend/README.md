@@ -1,7 +1,7 @@
 # Frontend
 
-React + TypeScript + Vite + Tailwind CSS v4 + Recharts dashboard for the RL
-crypto trading bot backtester.
+React + TypeScript + Vite + Tailwind CSS v4 + Recharts dashboard for the
+Crypto RL Backtester.
 
 ```bash
 npm install

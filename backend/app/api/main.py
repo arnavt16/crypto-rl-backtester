@@ -27,7 +27,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 REPO_ROOT = BACKEND_DIR.parent
 SPLIT_DATE = "2021-01-01"
 
-app = FastAPI(title="RL Crypto Trading Bot Backtester API")
+app = FastAPI(title="Crypto RL Backtester API")
 
 app.add_middleware(
     CORSMiddleware,
