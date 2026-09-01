@@ -1,3 +1,5 @@
+import { Play, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import type { AgentType, TrainParams } from "../types";
 
 interface Props {
@@ -53,10 +55,7 @@ export function ControlsPanel({ params, onChange, onRun, running, progress }: Pr
   const isPpo = params.agent_type === "ppo";
 
   return (
-    <div
-      className="rounded-lg border p-4"
-      style={{ background: "var(--surface-1)", borderColor: "var(--border)" }}
-    >
+    <div className="card-surface rounded-lg p-4">
       <h3 className="mb-3 text-sm font-medium" style={{ color: "var(--text-primary)" }}>
         Backtest Controls
       </h3>
@@ -67,7 +66,7 @@ export function ControlsPanel({ params, onChange, onRun, running, progress }: Pr
             key={t}
             disabled={running}
             onClick={() => onChange({ ...params, agent_type: t })}
-            className="flex-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
+            className="flex-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-all hover:brightness-105 disabled:opacity-50"
             style={{
               borderColor: params.agent_type === t ? "var(--series-agent)" : "var(--border)",
               background: params.agent_type === t ? "var(--series-agent)" : "transparent",
@@ -112,14 +111,25 @@ export function ControlsPanel({ params, onChange, onRun, running, progress }: Pr
         />
       </div>
 
-      <button
+      <motion.button
+        whileTap={{ scale: 0.98 }}
         onClick={onRun}
         disabled={running}
-        className="mt-5 w-full rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-60"
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-60"
         style={{ background: "var(--series-agent)" }}
       >
-        {running ? `Training… ${(progress * 100).toFixed(0)}%` : "Run Backtest"}
-      </button>
+        {running ? (
+          <>
+            <Loader2 size={14} className="animate-spin" />
+            Training… {(progress * 100).toFixed(0)}%
+          </>
+        ) : (
+          <>
+            <Play size={14} />
+            Run Backtest
+          </>
+        )}
+      </motion.button>
 
       {running && (
         <div

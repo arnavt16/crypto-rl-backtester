@@ -1,5 +1,8 @@
+import { motion } from "framer-motion";
 import type { Metrics } from "../types";
 import { usePalette } from "../lib/palette";
+import { STATS, isBetter } from "../lib/metricDefs";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 interface Props {
   agentMetrics: Metrics;
@@ -7,62 +10,23 @@ interface Props {
   agentLabel: string;
 }
 
-type Direction = "higher-better" | "closer-to-zero-better";
-
-interface StatDef {
-  key: keyof Metrics;
-  label: string;
-  format: (v: number) => string;
-  direction: Direction;
-}
-
-const STATS: StatDef[] = [
-  {
-    key: "total_return",
-    label: "Total Return",
-    format: (v) => `${(v * 100).toFixed(1)}%`,
-    direction: "higher-better",
-  },
-  {
-    key: "sharpe_ratio",
-    label: "Sharpe Ratio",
-    format: (v) => v.toFixed(2),
-    direction: "higher-better",
-  },
-  {
-    key: "max_drawdown",
-    label: "Max Drawdown",
-    format: (v) => `${(v * 100).toFixed(1)}%`,
-    direction: "closer-to-zero-better",
-  },
-  {
-    key: "win_rate",
-    label: "Win Rate (days)",
-    format: (v) => `${(v * 100).toFixed(1)}%`,
-    direction: "higher-better",
-  },
-];
-
-function isBetter(agent: number, baseline: number, dir: Direction): boolean {
-  if (dir === "higher-better") return agent > baseline;
-  return Math.abs(agent) < Math.abs(baseline); // closer to zero
-}
-
 export function MetricsCards({ agentMetrics, baselineMetrics, agentLabel }: Props) {
   const pal = usePalette();
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {STATS.map((stat) => {
+      {STATS.map((stat, i) => {
         const agentVal = agentMetrics[stat.key] as number;
         const baseVal = baselineMetrics[stat.key] as number;
         const better = isBetter(agentVal, baseVal, stat.direction);
 
         return (
-          <div
+          <motion.div
             key={stat.key}
-            className="rounded-lg border p-3"
-            style={{ background: "var(--surface-1)", borderColor: "var(--border)" }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, delay: i * 0.04 }}
+            className="card-surface rounded-lg p-3"
           >
             <div className="text-xs" style={{ color: "var(--text-muted)" }}>
               {stat.label}
@@ -71,7 +35,7 @@ export function MetricsCards({ agentMetrics, baselineMetrics, agentLabel }: Prop
               className="tabular-nums mt-1 text-xl font-semibold"
               style={{ color: "var(--text-primary)" }}
             >
-              {stat.format(agentVal)}
+              <AnimatedNumber value={agentVal} format={stat.format} />
             </div>
             <div className="mt-1 flex items-center gap-1.5 text-xs">
               <span style={{ color: pal.textMuted }}>{agentLabel} vs B&H</span>
@@ -82,7 +46,7 @@ export function MetricsCards({ agentMetrics, baselineMetrics, agentLabel }: Prop
                 {better ? "↑" : "↓"} {stat.format(baseVal)}
               </span>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

@@ -13,9 +13,15 @@ dist/
 # OS
 .DS_Store
 
-# Env
+# Env / secrets -- belt and suspenders, this project has no API keys
+# today (the data source needs none), but keep the door shut anyway.
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
 
 # Model artifacts are small (<200KB) and checked in so the demo works
 # without retraining -- see backend/scripts/generate_default_results.py

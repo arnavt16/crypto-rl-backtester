@@ -1,8 +1,9 @@
 import {
+  Area,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -11,50 +12,67 @@ import {
 import type { EquityPoint } from "../types";
 import { usePalette } from "../lib/palette";
 
+export interface EquitySeries {
+  key: string;
+  label: string;
+  color: string;
+  data: EquityPoint[];
+}
+
 interface Props {
-  agentCurve: EquityPoint[];
-  baselineCurve: EquityPoint[];
-  agentLabel: string;
+  series: EquitySeries[];
+  /** key of the series to render with a soft gradient fill underneath (single-agent view only) */
+  primaryAreaKey?: string;
 }
 
 interface MergedPoint {
   date: string;
-  agent: number;
-  baseline: number;
+  [seriesKey: string]: string | number;
 }
 
-function mergeCurves(agent: EquityPoint[], baseline: EquityPoint[]): MergedPoint[] {
-  const baselineByDate = new Map(baseline.map((p) => [p.date, p.equity]));
-  return agent.map((p) => ({
-    date: p.date,
-    agent: p.equity,
-    baseline: baselineByDate.get(p.date) ?? NaN,
-  }));
+function mergeCurves(series: EquitySeries[]): MergedPoint[] {
+  if (series.length === 0) return [];
+  const maps = series.map((s) => new Map(s.data.map((p) => [p.date, p.equity])));
+  const dates = series[0].data.map((p) => p.date);
+  return dates.map((date) => {
+    const point: MergedPoint = { date };
+    series.forEach((s, si) => {
+      point[s.key] = maps[si].get(date) ?? NaN;
+    });
+    return point;
+  });
 }
 
 function formatPct(v: number): string {
   return `${((v - 1) * 100).toFixed(1)}%`;
 }
 
-export function EquityCurveChart({ agentCurve, baselineCurve, agentLabel }: Props) {
+export function EquityCurveChart({ series, primaryAreaKey }: Props) {
   const pal = usePalette();
-  const data = mergeCurves(agentCurve, baselineCurve);
-
-  // Thin the x-axis ticks so labels don't collide.
+  const data = mergeCurves(series);
   const tickInterval = Math.max(1, Math.floor(data.length / 6));
+  const labelByKey = Object.fromEntries(series.map((s) => [s.key, s.label]));
 
   return (
-    <div
-      className="rounded-lg border p-4"
-      style={{ background: "var(--surface-1)", borderColor: "var(--border)" }}
-    >
+    <div className="card-surface rounded-lg p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
           Equity Curve (test period, indexed to 1.0)
         </h3>
       </div>
       <ResponsiveContainer width="100%" height={340}>
-        <LineChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
+        <ComposedChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
+          <defs>
+            {series.map(
+              (s) =>
+                s.key === primaryAreaKey && (
+                  <linearGradient key={s.key} id={`fill-${s.key}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={s.color} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={s.color} stopOpacity={0} />
+                  </linearGradient>
+                )
+            )}
+          </defs>
           <CartesianGrid stroke={pal.grid} strokeDasharray="0" vertical={false} />
           <XAxis
             dataKey="date"
@@ -78,37 +96,45 @@ export function EquityCurveChart({ agentCurve, baselineCurve, agentLabel }: Prop
               fontSize: 12,
             }}
             labelStyle={{ color: pal.textSecondary }}
-            formatter={(value, name) => [
-              formatPct(Number(value)),
-              name === "agent" ? agentLabel : "Buy & Hold",
-            ]}
+            formatter={(value, name) => [formatPct(Number(value)), labelByKey[String(name)] ?? name]}
           />
-          <Legend
-            formatter={(value) => (
-              <span style={{ color: pal.textSecondary, fontSize: 12 }}>
-                {value === "agent" ? agentLabel : "Buy & Hold"}
-              </span>
-            )}
-          />
-          <Line
-            type="monotone"
-            dataKey="agent"
-            stroke={pal.agent}
-            strokeWidth={2}
-            strokeLinecap="round"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="baseline"
-            stroke={pal.baseline}
-            strokeWidth={2}
-            strokeLinecap="round"
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
+          {series.length > 1 && (
+            <Legend
+              formatter={(value) => (
+                <span style={{ color: pal.textSecondary, fontSize: 12 }}>
+                  {labelByKey[value] ?? value}
+                </span>
+              )}
+            />
+          )}
+          {series.map((s) =>
+            s.key === primaryAreaKey ? (
+              <Area
+                key={s.key}
+                type="monotone"
+                dataKey={s.key}
+                stroke="none"
+                fill={`url(#fill-${s.key})`}
+                isAnimationActive={false}
+                activeDot={false}
+                legendType="none"
+                tooltipType="none"
+              />
+            ) : null
+          )}
+          {series.map((s) => (
+            <Line
+              key={s.key}
+              type="monotone"
+              dataKey={s.key}
+              stroke={s.color}
+              strokeWidth={2}
+              strokeLinecap="round"
+              dot={false}
+              isAnimationActive={false}
+            />
+          ))}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

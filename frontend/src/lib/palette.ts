@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useTheme } from "./theme";
 
 export interface Palette {
   surface: string;
@@ -8,6 +8,7 @@ export interface Palette {
   grid: string;
   baselineAxis: string;
   agent: string;
+  agent2: string;
   baseline: string;
   good: string;
   critical: string;
@@ -24,8 +25,9 @@ export const palettes: { light: Palette; dark: Palette } = {
     textMuted: "#898781",
     grid: "#e1e0d9",
     baselineAxis: "#c3c2b7",
-    agent: "#2a78d6",
-    baseline: "#eb6834",
+    agent: "#2a78d6", // categorical slot 1 (blue) -- primary agent
+    agent2: "#1baf7a", // categorical slot 3 (aqua) -- second agent, compare mode
+    baseline: "#eb6834", // categorical slot 2 (orange) -- buy & hold
     good: "#0ca30c",
     critical: "#d03b3b",
   },
@@ -37,6 +39,7 @@ export const palettes: { light: Palette; dark: Palette } = {
     grid: "#2c2c2a",
     baselineAxis: "#383835",
     agent: "#3987e5",
+    agent2: "#199e70",
     baseline: "#d95926",
     good: "#0ca30c",
     critical: "#e66767",
@@ -44,16 +47,6 @@ export const palettes: { light: Palette; dark: Palette } = {
 };
 
 export function usePalette(): Palette {
-  const [isDark, setIsDark] = useState(
-    () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
+  const { isDark } = useTheme();
   return isDark ? palettes.dark : palettes.light;
 }

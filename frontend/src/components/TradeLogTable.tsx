@@ -12,10 +12,7 @@ function positionLabel(p: number): string {
 
 export function TradeLogTable({ trades }: Props) {
   return (
-    <div
-      className="rounded-lg border"
-      style={{ background: "var(--surface-1)", borderColor: "var(--border)" }}
-    >
+    <div className="card-surface rounded-lg">
       <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
         <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
           Trade Log

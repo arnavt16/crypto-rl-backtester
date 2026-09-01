@@ -7,7 +7,8 @@ Stable-Baselines3 — are trained on 2013–2020 data and evaluated on a held-ou
 2021 test period they never see during training. A React dashboard lets you
 tweak transaction costs, a risk-aversion reward penalty, and training length,
 kick off a fresh training run, and watch the equity curve and trade log come
-back in real time.
+back in real time — with a side-by-side "Compare both agents" view, animated
+stat tiles, and a light/dark/system theme toggle.
 
 ![Dashboard screenshot](docs/dashboard_screenshot.png)
 
